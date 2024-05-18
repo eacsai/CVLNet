@@ -218,15 +218,8 @@ class loss_uncertainty(nn.Module):
     def forward(self, sat_feature, grd_feature, uncertainty=1):
         B = grd_feature.size()[0]
 
-        if self.shift_range > 0:
-            sim, _ = self.similarity_function(grd_feature, sat_feature, uncertainty, self.test_method)
-            dist_array = 2 - 2 * sim  # range: 2~0
-        else:
-            sat_feature = sat_feature.view(B, -1)
-            grd_feature = grd_feature.view(B, -1)
-            sat_feature = F.normalize(sat_feature)
-            grd_feature = F.normalize(grd_feature)
-            dist_array = 2 - 2 * sat_feature @ grd_feature.T
+        sim, _ = self.similarity_function(grd_feature, sat_feature, uncertainty, self.test_method)
+        dist_array = 2 - 2 * sim  # range: 2~0
         pos_dist = torch.diagonal(dist_array)
 
         pair_n = B * (B - 1)

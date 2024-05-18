@@ -327,7 +327,7 @@ def parse_args():
     parser.add_argument('--test', type=int, default=0, help='test with trained model')
     parser.add_argument('--debug', type=int, default=0, help='debug to dump middle processing images')
 
-    parser.add_argument('--epochs', type=int, default=5, help='number of training epochs')
+    parser.add_argument('--epochs', type=int, default=50, help='number of training epochs')
 
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')  # 1e-2
 
@@ -361,7 +361,7 @@ def parse_args():
     #                                                              '1:single inverse direction,'
     #                                                              '2:bidirectional')
 
-    parser.add_argument('--batch_size', type=int, default=8, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=2, help='batch size')
     # parser.add_argument('--loss_method', type=int, default=2, help='0, 1, 2')
 
     # parser.add_argument('--use_corr', type=bool, default=True, help='use corr')

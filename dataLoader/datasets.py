@@ -7,7 +7,7 @@ import torch
 import pandas as pd
 import utils
 
-root_dir = '/media/yujiao/6TB/dataset/Kitti1' # '../../data/Kitti' # '../Data' #'..\\Data' #
+root_dir = '/public/home/shiyj2-group/wqw_video_localization/KITTI' # '../../data/Kitti' # '../Data' #'..\\Data' #
 
 test_csv_file_name = 'test.csv'
 ignore_csv_file_name = 'ignore.csv'
@@ -28,7 +28,7 @@ train_file = './dataLoader/train_files_with_sat_GPS.txt'
 test_file = './dataLoader/test2_files_with_sat_GPS.txt'
 val_file = './dataLoader/test1_files_with_sat_GPS.txt'
 
-semantic_dir = 'semantics'
+semantic_dir = 'setmap/train_10mgap'
 
 class SatGrdDataset(Dataset):
     def __init__(self, root, file_name, stereo=False, sequence=False,
@@ -54,7 +54,7 @@ class SatGrdDataset(Dataset):
         if use_polar_sat:
             self.satmap_dir = 'satmap_polar/train_10mgap'
         else:
-            self.satmap_dir += '/train_10mgap'
+            self.satmap_dir = '/public/home/shiyj2-group/wqw_video_localization/KITTI/setmap/train_10mgap'
 
 
         with open(file_name, 'r') as f:
@@ -66,7 +66,7 @@ class SatGrdDataset(Dataset):
 
         self.file_name = []
         for file in file_name:
-            new_file = os.path.join(root, semantic_dir, '2011' + file.strip().split(' ')[0].split('/2011')[1])
+            new_file = os.path.join(root, semantic_dir, file.strip().split(' ')[0])
             if not os.path.exists(new_file):
                 print('File not exists: ', new_file)
                 continue

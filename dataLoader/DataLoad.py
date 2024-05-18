@@ -46,9 +46,9 @@ def load_data(file, batch_size, stereo, sequence, shift_range=0,
     file_name = train_set.get_file_list()
     bs = DistanceBatchSampler(torch.utils.data.RandomSampler(train_set), batch_size, True, shift_meter, file_name)
     train_loader = DataLoader(train_set, batch_sampler=bs, num_workers=num_thread_workers)
-    # else:
-    #     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, pin_memory=True,
-    #                               num_workers=num_thread_workers, drop_last=False)
+    
+    # train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=False, pin_memory=True,
+    #                             num_workers=num_thread_workers, drop_last=False)
     return train_loader
 
 

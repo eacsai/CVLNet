@@ -182,18 +182,6 @@ class FuseModel(nn.Module):
         # Trans matrix from sat to realword
         XZ = torch.einsum('ij, hwj -> hwi', Aff_sat2real,
                           uv_center)  # shape = [satmap_sidelength, satmap_sidelength, 2]
-
-        # if self.height_sample == 'uniform':
-        #     Y = torch.linspace(min_height, max_height, self.height_planes).cuda()
-        # elif self.height_sample == 'inverse':
-        #     delta = 1
-        #     max_height += delta
-        #     min_height += delta
-        #     Y = (max_height - 1 / torch.linspace(1 / max_height, 1 / min_height, self.height_planes)).cuda()
-        #
-        # Y = Y.view(-1, 1, 1, 1)
-        # Y = Y.expand(-1, satmap_sidelength, satmap_sidelength, -1)  # [height, sidelength,sidelength,1]
-        # self.Y = Y
         Y = torch.zeros(1, satmap_sidelength, satmap_sidelength, 1, dtype=XZ.dtype, device=XZ.device)
 
         XZ = torch.unsqueeze(XZ, 0)  # [1,sidelength,sidelength,2]
@@ -349,8 +337,8 @@ class FuseModel(nn.Module):
         sat_feature = None
         uncertainty = None
         if sat_map != None:
-            sat_feature = self.SatFeatureNet(sat_map)
-            sat_feature = self.SatDownch(sat_feature)
+            sat_feature = self.SatFeatureNet(sat_map) # Vgg
+            sat_feature = self.SatDownch(sat_feature) # downSample
 
             B, C, H_s, W_s = sat_feature.size()
 
@@ -358,12 +346,12 @@ class FuseModel(nn.Module):
                 print('sat_features_max&min:', torch.max(sat_feature).item(), torch.min(sat_feature).item())
             # chek feature not all same
             assert torch.max(sat_feature) - torch.min(sat_feature) >= 1e-11, 'sat_feature all the same!!!'
-            uncertainty = self.UncertaintyNet(sat_feature)
+            uncertainty = self.UncertaintyNet(sat_feature) # [B, 1, 7, 7]
 
-        # [B,S,E,C,H,W]
+        # [B,S,C,H,W]
         if grd_img_left != None:
             B, S, C_in, H_in, W_in = grd_img_left.size()
-            grd_feature_l = self.GrdFeatureNet(grd_img_left.view(-1, C_in, H_in, W_in))
+            grd_feature_l = self.GrdFeatureNet(grd_img_left.view(-1, C_in, H_in, W_in)) # VGG
             _, C, H_g, W_g = grd_feature_l.size()
             grd_feature_l = grd_feature_l.view(B, S, C, H_g, W_g)
             if self.stereo:
