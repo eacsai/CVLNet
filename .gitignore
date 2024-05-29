@@ -1,2 +1,8 @@
 *.pyc
 events*
+*.pth
+*.txt
+*.mat
+Models/*
+*.err
+*.out

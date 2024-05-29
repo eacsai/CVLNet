@@ -7,7 +7,7 @@ visualise_debug = True
 
 
 def load_data(file, batch_size, stereo, sequence, shift_range=0,
-                    use_polar_sat=0, use_project_grd=0, use_semantic=0):
+                    use_polar_sat=0, use_project_grd=0, use_semantic=0, mode = 'train'):
     SatMap_process_sidelength = utils.get_process_satmap_sidelength()
 
     if use_polar_sat:
@@ -39,7 +39,7 @@ def load_data(file, batch_size, stereo, sequence, shift_range=0,
 
     train_set = SatGrdDataset(root=root_dir, file_name=file, stereo=stereo, sequence=sequence,
                               transform=(satmap_transform, grdimage_transform),
-                              use_polar_sat=use_polar_sat, use_project_grd=use_project_grd, use_semantic=use_semantic)
+                              use_polar_sat=use_polar_sat, use_project_grd=use_project_grd, use_semantic=use_semantic, mode=mode)
     # if shift_range > 0:
     meter_per_pixel = utils.get_meter_per_pixel()
     shift_meter = (shift_range * 2 + 1) * meter_per_pixel * 512 / 32

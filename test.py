@@ -333,7 +333,7 @@ if __name__ == '__main__':
             net.cuda()
 
             # net.load_state_dict(torch.load(os.path.join(save_path, 'Model_best.pth')), strict=False)
-            net.load_state_dict(torch.load(os.path.join(save_path, 'Model_best.pth')), strict=False)
+            net.load_state_dict(torch.load(os.path.join(save_path, 'model_4.pth')), strict=False)
             print("restore finished")
 
             RankTest(net, args, batch_count, sequence, test_wo_destractors=True)

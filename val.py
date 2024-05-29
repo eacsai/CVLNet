@@ -182,7 +182,7 @@ def RankVal(epoch, net_test, get_similarity_fn, args, save_path, best_rank_resul
 
     valloader = load_data(val_file, mini_batch, args.stereo, args.sequence,
                             args.shift_range, args.polar_sat, use_project_grd=0,
-                                use_semantic=args.use_semantic)
+                                use_semantic=args.use_semantic, mode='val')
 
     ### init for restoring the features
     query_vec = torch.tensor([])  # np.zeros([N_data,vec_len], dtype=np.float32)
@@ -326,8 +326,9 @@ def parse_args():
     parser.add_argument('--resume', type=int, default=0, help='resume the trained model')
     parser.add_argument('--test', type=int, default=0, help='test with trained model')
     parser.add_argument('--debug', type=int, default=0, help='debug to dump middle processing images')
+    parser.add_argument('--name', type=str, default='test', help='debug to dump middle processing images')
 
-    parser.add_argument('--epochs', type=int, default=50, help='number of training epochs')
+    parser.add_argument('--epochs', type=int, default=5, help='number of training epochs')
 
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')  # 1e-2
 
@@ -361,7 +362,7 @@ def parse_args():
     #                                                              '1:single inverse direction,'
     #                                                              '2:bidirectional')
 
-    parser.add_argument('--batch_size', type=int, default=2, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=8, help='batch size')
     # parser.add_argument('--loss_method', type=int, default=2, help='0, 1, 2')
 
     # parser.add_argument('--use_corr', type=bool, default=True, help='use corr')
@@ -397,7 +398,7 @@ def getSavePath(args):
         initial_path = './Models/FuseModel/sequence' + str(args.sequence) + '_stereo' + str(args.stereo) + \
                        '_corr' + str(args.shift_range) + \
                        '_batch' + str(args.batch_size) + '_uncertainty' + str(args.uncertainty)
-        save_path = os.path.join(initial_path, 'stage_' + str(args.stage))
+        save_path = os.path.join(initial_path, 'stage_' + str(args.stage) + '_' + str(args.name))
         if args.stage == 0:
             restore_path = None
         else:
@@ -409,7 +410,7 @@ def getSavePath(args):
                        '_' + str(args.fuse_method) + '_corr' + str(args.shift_range) + \
                        '_batch' + str(args.batch_size) + '_uncertainty' + str(args.uncertainty) + \
                        '_seqOrder' + str(args.seq_order)
-        save_path = os.path.join(initial_path, 'stage_' + str(args.stage))
+        save_path = os.path.join(initial_path, 'stage_' + str(args.stage) + '_' + str(args.name))
 
         if args.stage==0:
             restore_path = None

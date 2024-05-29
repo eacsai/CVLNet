@@ -7,7 +7,7 @@ import torch
 import pandas as pd
 import utils
 
-root_dir = '/public/home/shiyj2-group/wqw_video_localization/KITTI' # '../../data/Kitti' # '../Data' #'..\\Data' #
+root_dir = '/public/home/shiyj2-group/video_localization/KITTI' # '../../data/Kitti' # '../Data' #'..\\Data' #
 
 test_csv_file_name = 'test.csv'
 ignore_csv_file_name = 'ignore.csv'
@@ -28,11 +28,11 @@ train_file = './dataLoader/train_files_with_sat_GPS.txt'
 test_file = './dataLoader/test2_files_with_sat_GPS.txt'
 val_file = './dataLoader/test1_files_with_sat_GPS.txt'
 
-semantic_dir = 'setmap/train_10mgap'
+semantic_dir = 'satmap/train_10mgap'
 
 class SatGrdDataset(Dataset):
     def __init__(self, root, file_name, stereo=False, sequence=False,
-                 transform=None, use_polar_sat=0, use_project_grd=0, use_semantic=0):
+                 transform=None, use_polar_sat=0, use_project_grd=0, use_semantic=0, mode='train'):
         self.root = root
         self.stereo = stereo
         self.sequence = sequence
@@ -51,10 +51,12 @@ class SatGrdDataset(Dataset):
 
         # self.satmap_dir = satmap_dir
 
-        if use_polar_sat:
-            self.satmap_dir = 'satmap_polar/train_10mgap'
+        if mode == 'test':
+            self.satmap_dir = '/public/home/shiyj2-group/video_localization/KITTI/satmap/test'
+        elif mode == 'val':
+            self.satmap_dir = '/public/home/shiyj2-group/video_localization/KITTI/satmap/val'
         else:
-            self.satmap_dir = '/public/home/shiyj2-group/wqw_video_localization/KITTI/setmap/train_10mgap'
+            self.satmap_dir = '/public/home/shiyj2-group/video_localization/KITTI/satmap/train_10mgap'
 
 
         with open(file_name, 'r') as f:
@@ -155,10 +157,14 @@ class SatGrdDataset(Dataset):
         # =================== read satellite map ===================================
         file_name = sequence_list[0]
         SatMap_name = os.path.join(self.root, self.satmap_dir, file_name)
-        try:
+        if os.path.exists(SatMap_name):
             sat_map = Image.open(SatMap_name, 'r').convert('RGB')
-        except:
-            print('Read Fail: ', SatMap_name)
+        else:
+            SatMap_name = os.path.join('/public/home/shiyj2-group/video_localization/KITTI/satmap/train_10mgap', file_name)
+            try:
+                sat_map = Image.open(SatMap_name, 'r').convert('RGB')
+            except:
+                print('fail load sat_img: ', SatMap_name)
 
         # with Image.open(SatMap_name, 'r') as SatMap:
         #     sat_map = SatMap.convert('RGB')
@@ -324,7 +330,7 @@ class GrdDataset(Dataset):
 
         self.file_name = []
         for file in file_name:
-            new_file = os.path.join(root, semantic_dir, '2011' + file.strip().split(' ')[0].split('/2011')[1])
+            new_file = os.path.join(root, semantic_dir, file.strip().split(' ')[0])
             if not os.path.exists(new_file):
                 print('File not exists: ', new_file)
                 continue
@@ -602,19 +608,17 @@ class SatDataset1(Dataset):  # without distractor, each satellite image correspo
         # x, y = utils.get_camera_gps_shift_left(heading_array[0].item())  # shift <1.4m
         # meter_per_pixel = utils.get_meter_per_pixel(scale=1)
         # shift_xy = (np.array([x, y]) / meter_per_pixel).astype(np.int32)
-        if 'polar' not in self.test_sat_dir:
-            # crop out the central region
-            SatMap_sidelength = utils.get_original_satmap_sidelength()
-            width, height = sat_map.size
-            centroid_x = width // 2 #+ shift_xy[0]
-            centroid_y = height // 2 #- shift_xy[1]
-            left = centroid_x - SatMap_sidelength / 2
-            top = centroid_y - SatMap_sidelength / 2
+        # crop out the central region
+        SatMap_sidelength = utils.get_original_satmap_sidelength()
+        width, height = sat_map.size
+        centroid_x = width // 2 #+ shift_xy[0]
+        centroid_y = height // 2 #- shift_xy[1]
+        left = centroid_x - SatMap_sidelength / 2
+        top = centroid_y - SatMap_sidelength / 2
 
-            # crop
-            sat_map = sat_map.crop((left, top, left + SatMap_sidelength, top + SatMap_sidelength))
-        else:
-            sat_map = sat_map.resize((1024, 256))
+        # crop
+        sat_map = sat_map.crop((left, top, left + SatMap_sidelength, top + SatMap_sidelength))
+
 
         # transform
         if self.satmap_transform is not None:
